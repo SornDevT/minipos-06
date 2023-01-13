@@ -1,12 +1,12 @@
 <template>
     <div>
-        <div class="card">
-            {{ FormShow }}
+        <div class="card"> 
+            <!-- {{ FormShow }}
             <hr>
             {{ FormStore }}
             <hr>
             StoreData: {{ StoreData }}
-            <hr>
+            <hr> -->
          <div class=" d-flex justify-content-between ">
                     <h5 class="card-header">Bordered Table</h5>
                     <div class=" p-4 ">
@@ -101,7 +101,7 @@ export default {
             IDupdate:'',
             FormShow:false,
             FormType:false,
-            StoreData:[{ "id": 320, "name": "ເກີບຜ້າໃບ", "amount": 50, "price_buy": "10000", "price_sell": "20000" }, { "id": 142, "name": "ກະເປົາຜູ້ຍິງ", "amount": 50, "price_buy": "20000", "price_sell": "30000" }, { "id": 718, "name": "ສະປູອາບນ້ຳ", "amount": 100, "price_buy": "5000", "price_sell": "12000" }],
+            StoreData:[],
             FormStore:{
                 name:'',
                 amount:'',
@@ -123,23 +123,58 @@ export default {
             if(this.FormType){
 
                 // ອັບເດດຂໍ້ມູນ
-                this.StoreData.find((i)=>i.id==this.IDupdate).name = this.FormStore.name;
-                this.StoreData.find((i)=>i.id==this.IDupdate).amount = this.FormStore.amount;
-                this.StoreData.find((i)=>i.id==this.IDupdate).price_buy = this.FormStore.price_buy;
-                this.StoreData.find((i)=>i.id==this.IDupdate).price_sell = this.FormStore.price_buy;
+                // this.StoreData.find((i)=>i.id==this.IDupdate).name = this.FormStore.name;
+                // this.StoreData.find((i)=>i.id==this.IDupdate).amount = this.FormStore.amount;
+                // this.StoreData.find((i)=>i.id==this.IDupdate).price_buy = this.FormStore.price_buy;
+                // this.StoreData.find((i)=>i.id==this.IDupdate).price_sell = this.FormStore.price_buy;
+
+                let formDataStore = new FormData();
+                formDataStore.append("name", this.FormStore.name);
+                formDataStore.append("amount", this.FormStore.amount);
+                formDataStore.append("price_buy", this.FormStore.price_buy);
+                formDataStore.append("price_sell", this.FormStore.price_sell);
+                
+                this.$axios.post(`/api/store/update/${this.IDupdate}`, formDataStore).then((response)=>{
+
+                  console.log(response.data);
+
+                  this.GetDataStore();
+                  
+                }).catch((error)=>{
+                  console.log(error)
+                });
+
 
 
             } else {
 
                 // ເພີ່ມຂໍ້ມູນ
-                this.StoreData.push({
-                    id: Math.floor(Math.random()*1000),
-                    name: this.FormStore.name,
-                    amount: this.FormStore.amount,
-                    price_buy: this.FormStore.price_buy,
-                    price_sell: this.FormStore.price_sell,
-                    image:''
+                // this.StoreData.push({
+                //     id: Math.floor(Math.random()*1000),
+                //     name: this.FormStore.name,
+                //     amount: this.FormStore.amount,
+                //     price_buy: this.FormStore.price_buy,
+                //     price_sell: this.FormStore.price_sell,
+                //     image:''
+                // });
+
+                let formDataStore = new FormData();
+                formDataStore.append("name", this.FormStore.name);
+                formDataStore.append("amount", this.FormStore.amount);
+                formDataStore.append("price_buy", this.FormStore.price_buy);
+                formDataStore.append("price_sell", this.FormStore.price_sell);
+                
+                this.$axios.post("/api/store/add", formDataStore).then((response)=>{
+
+                  console.log(response.data);
+
+                  this.GetDataStore();
+                  
+                }).catch((error)=>{
+                  console.log(error)
                 });
+
+
 
             }
 
@@ -166,25 +201,64 @@ export default {
             //console.log(id);
             this.IDupdate = id;
             // ຄົ້ນຫາຂໍ້ມູນ
-            let item = this.StoreData.find((i)=>i.id==id);
+            // let item = this.StoreData.find((i)=>i.id==id);
            // console.log(item);
 
            // ນຳຂໍ້ມູນທີ່ຄົ້ນຫາໄດ້ ມາໃສ່ໃນຟອມ
-            this.FormStore.name = item.name;
-            this.FormStore.amount = item.amount;
-            this.FormStore.price_buy = item.price_buy;
-            this.FormStore.price_sell = item.price_sell;
+            // this.FormStore.name = item.name;
+            // this.FormStore.amount = item.amount;
+            // this.FormStore.price_buy = item.price_buy;
+            // this.FormStore.price_sell = item.price_sell;
+
+            this.$axios.get(`api/store/edit/${this.IDupdate}`).then((response)=>{
+
+             // console.log(response.data.name);
+
+              this.FormStore.name = response.data.name;
+              this.FormStore.amount = response.data.amount;
+              this.FormStore.price_buy = response.data.price_buy;
+              this.FormStore.price_sell = response.data.price_sell;
+
+            }).catch((error)=>{
+              console.log(error);
+            });
+
 
             // ເປິດຟອມ ແລະ ສະແດງຕາຕະລາງ
             this.FormShow = true;
         },
         Del_store(id){
 
-            let index = this.StoreData.map((i)=>i.id).indexOf(id);
-            this.StoreData.splice(index,1);
-            console.log(index);
+            // let index = this.StoreData.map((i)=>i.id).indexOf(id);
+            // this.StoreData.splice(index,1);
+            // console.log(index);
+
+            this.$axios.delete(`api/store/delete/${id}`).then((response)=>{
+
+             console.log(response.data);
+
+             this.GetDataStore();
+
+            }).catch((error)=>{
+            console.log(error);
+            });
+
+
+        },
+        GetDataStore(){
+            this.$axios.get("api/store").then((response)=>{
+              //  console.log(response.data);
+                this.StoreData = response.data;
+            }).catch((error)=>{
+              console.log(error);
+            });
         }
+
     },
+    created(){
+      this.GetDataStore();
+    }
+
 };
 </script>
 
