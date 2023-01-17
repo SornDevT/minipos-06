@@ -10,6 +10,7 @@
          <div class=" d-flex justify-content-between ">
                     <h5 class="card-header">Bordered Table</h5>
                     <div class=" p-4 ">
+                      <!-- <button @click="showAlert">Hello world</button> -->
                         <button type="button" class="btn rounded-pill btn-info" v-if="!FormShow" @click="FormShow=true" >ເພີ່ມຂໍ້ມູນ</button>
                         <button type="button" class="btn rounded-pill btn-success me-2 " v-if="FormShow" @click="add_store()" >ບັນທຶກ</button>
                         <button type="button" class="btn rounded-pill btn-danger" v-if="FormShow" @click="FormShow=false" >ຍົກເລີກ</button>
@@ -33,20 +34,20 @@
             </div>
             <div class="mb-3">
             <label  class="form-label">ຈຳນວນ</label>
-            <input type="number" class="form-control"  placeholder="ປ້ອນຈຳນວນ..." v-model="FormStore.amount" >
+            <cleave :options="options" class="form-control"  placeholder="ປ້ອນຈຳນວນ..." v-model="FormStore.amount" />
             </div>
 
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
                     <label  class="form-label">ລາຄາຊື້</label>
-                    <input type="text" class="form-control" placeholder="ປ້ອນລາຄາຊື້..." v-model="FormStore.price_buy" >
+                    <cleave :options="options"  class="form-control" placeholder="ປ້ອນລາຄາຊື້..." v-model="FormStore.price_buy" />
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
                 <label  class="form-label">ລາຄາຂາຍ</label>
-                <input type="text" class="form-control"  placeholder="ປ້ອນລາຄາຂາຍ..." v-model="FormStore.price_sell" >
+                <cleave :options="options" class="form-control"  placeholder="ປ້ອນລາຄາຂາຍ..." v-model="FormStore.price_sell" />
                 </div>
                 </div>
             </div>
@@ -73,7 +74,7 @@
             <td>
               {{ list.image }}
             </td>
-            <td>{{ list.price_buy }}</td>
+            <td>{{ formatPrice(list.price_buy) }}</td>
             <td>
               <div class="dropdown">
                 <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded"></i></button>
@@ -98,6 +99,17 @@ export default {
 
     data() {
         return {
+            options:{
+             // prefix: '₭ ',
+              numeral: true,
+              numeralPositiveOnly: true,
+              noImmediatePrefix: true,
+              rawValueTrimPrefix: true,
+              numeralIntegerScale: 10,
+              numeralDecimalScale: 2,
+              numeralDecimalMark: ',',
+              delimiter: '.'
+            },
             IDupdate:'',
             FormShow:false,
             FormType:false,
@@ -117,6 +129,15 @@ export default {
     },
 
     methods: {
+      formatPrice(value) {
+			let val = (value / 1).toFixed(0).replace(",", ".");
+			return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")+" ກີບ";
+		},
+    //   showAlert() {
+    //   // Use sweetalert2
+   // this.$swal('Hello Vue world!!!');
+    //.fire('Any fool can use a computer')
+    // },
         add_store(){
 
             // ກວດຊອບເງື່ອນໄຂ
@@ -134,15 +155,35 @@ export default {
                 formDataStore.append("price_buy", this.FormStore.price_buy);
                 formDataStore.append("price_sell", this.FormStore.price_sell);
                 
+                this.$axios.get("/sanctum/csrf-cookie").then((response)=>{
                 this.$axios.post(`/api/store/update/${this.IDupdate}`, formDataStore).then((response)=>{
 
-                  console.log(response.data);
+                ///console.log(response.data);
 
                   this.GetDataStore();
+
+                  if(response.data.success){
+
+                    this.$swal(
+                        'ການອັບເດດຂໍ້ມູນ',
+                        response.data.message,
+                        'success'
+                      );
+
+                    } else {
+
+                    this.$swal(
+                        'ການອັບເດດຂໍ້ມູນ',
+                        response.data.message,
+                        'error'
+                      );
+
+                    }
                   
                 }).catch((error)=>{
                   console.log(error)
                 });
+              });
 
 
 
@@ -163,16 +204,36 @@ export default {
                 formDataStore.append("amount", this.FormStore.amount);
                 formDataStore.append("price_buy", this.FormStore.price_buy);
                 formDataStore.append("price_sell", this.FormStore.price_sell);
-                
+
+                this.$axios.get("/sanctum/csrf-cookie").then((response)=>{
                 this.$axios.post("/api/store/add", formDataStore).then((response)=>{
 
-                  console.log(response.data);
+                 // console.log(response.data);
+
+                  if(response.data.success){
+
+                    this.$swal(
+                        'ການບັນທຶກຂໍ້ມູນ',
+                        response.data.message,
+                        'success'
+                      );
+
+                  } else {
+
+                    this.$swal(
+                        'ການບັນທຶກຂໍ້ມູນ',
+                        response.data.message,
+                        'error'
+                      );
+
+                  }
 
                   this.GetDataStore();
                   
                 }).catch((error)=>{
                   console.log(error)
                 });
+              });
 
 
 
@@ -209,7 +270,7 @@ export default {
             // this.FormStore.amount = item.amount;
             // this.FormStore.price_buy = item.price_buy;
             // this.FormStore.price_sell = item.price_sell;
-
+            this.$axios.get("/sanctum/csrf-cookie").then((response)=>{
             this.$axios.get(`api/store/edit/${this.IDupdate}`).then((response)=>{
 
              // console.log(response.data.name);
@@ -222,6 +283,7 @@ export default {
             }).catch((error)=>{
               console.log(error);
             });
+          });
 
 
             // ເປິດຟອມ ແລະ ສະແດງຕາຕະລາງ
@@ -233,25 +295,74 @@ export default {
             // this.StoreData.splice(index,1);
             // console.log(index);
 
+            this.$swal({
+            title: 'ທ່ານແນ່ໃຈບໍ່?',
+            text: "ທີ່ຈະລຶບຂໍ້ມູນນີ້!",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'ຕົກລົງ',
+            cancelButtonText:'ຍົກເລີກ'
+          }).then((result) => {
+            if (result.isConfirmed) {
+
+              
+            // ຍຶນຍັນລຶບຂໍ້ມູນ
+            this.$axios.get("/sanctum/csrf-cookie").then((response)=>{
             this.$axios.delete(`api/store/delete/${id}`).then((response)=>{
 
-             console.log(response.data);
+              //console.log(response.data);
 
-             this.GetDataStore();
+              if(response.data.success){
+                this.$swal(
+                'ການລຶບຂໍ້ມູນ!',
+                response.data.message,
+                'success'
+              );
+              } else {
+                this.$swal(
+                'ການລອບຂໍ້ມູນ!',
+                response.data.message,
+                'error'
+              );
+              }
 
-            }).catch((error)=>{
-            console.log(error);
+              this.GetDataStore();
+              }).catch((error)=>{
+              console.log(error);
+              });
             });
+
+
+              
+            }
+          })
+
+          
 
 
         },
         GetDataStore(){
+
+          this.$axios.get("/sanctum/csrf-cookie").then((response)=>{
             this.$axios.get("api/store").then((response)=>{
               //  console.log(response.data);
                 this.StoreData = response.data;
             }).catch((error)=>{
               console.log(error);
             });
+          });
+
+
+          // this.$axios.get("api/store").then((response)=>{
+          //     //  console.log(response.data);
+          //       this.StoreData = response.data;
+          //   }).catch((error)=>{
+          //     console.log(error);
+          //   });
+            
+
         }
 
     },

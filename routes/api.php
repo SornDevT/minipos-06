@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,8 +21,22 @@ use App\Http\Controllers\StoreController;
 //     return $request->user();
 // });
 
-Route::post("store/add",[StoreController::class,"add"]);
-Route::get("store",[StoreController::class,"index"]);
-Route::get("store/edit/{id}",[StoreController::class,"edit"]);
-Route::post("store/update/{id}",[StoreController::class,"update"]);
-Route::delete("store/delete/{id}",[StoreController::class,"delete"]);
+Route::post("register",[UserController::class,"register"]);
+Route::post("login",[UserController::class,"login"]);
+Route::post("logout",[UserController::class,"logout"]);
+
+Route::group(['prefix'=>'store', 'middleware'=>'auth:sanctum'], function(){
+    Route::post("add",[StoreController::class,"add"]);
+    Route::get("/",[StoreController::class,"index"]);
+    Route::get("edit/{id}",[StoreController::class,"edit"]);
+    Route::post("update/{id}",[StoreController::class,"update"]);
+    Route::delete("delete/{id}",[StoreController::class,"delete"]);
+});
+
+// Route::post("store/add",[StoreController::class,"add"]);
+// Route::get("store",[StoreController::class,"index"]);
+// Route::get("store/edit/{id}",[StoreController::class,"edit"]);
+// Route::post("store/update/{id}",[StoreController::class,"update"]);
+// Route::delete("store/delete/{id}",[StoreController::class,"delete"]);
+
+

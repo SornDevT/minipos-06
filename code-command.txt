@@ -1,0 +1,8 @@
+ຄຳສັ່ງ Laravel + vue
+
+- composer install / composer i         : ເປັນຄຳສັ່ງຕິດຕັ້ງ library ຂອງ Laravel
+- npm install / npm i                   : ເປັນຄຳສັ່ງຕິດຕັ້ງ library ຂອງ Nodejs, vue
+- php artisan serve                     : ຄຳສັ່ງ Run Server ຂອງ Laravel
+- npm run watch                         : ເປັນຄຳສັ່ງ Run Compli vue
+- php artisam make:model -m ຊື່ໂມເດວ      : ເປັນຄຳສັ່ງສ້າງ Model 
+- php artisam make:controoler ຊື່ Controller  : ເປັນຄຳສັ່ງ ສ້າງ Controller

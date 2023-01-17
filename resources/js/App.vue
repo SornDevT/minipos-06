@@ -3,7 +3,7 @@
         <div class="layout-wrapper layout-content-navbar ">
   <div class="layout-container">
 
-        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme" v-if="Vue_isLoggin">
 
   <!-- ! Hide app brand if navbar-full -->
   <div class="app-brand demo">
@@ -56,7 +56,7 @@
 
     
     <li class="menu-item ">
-      <router-link to="/" class="menu-link">
+      <router-link to="/store" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
                 <div>ສະຕ໋ອກສິນຄ້າ </div>
       </router-link>
@@ -94,71 +94,7 @@
 
           </li>
         
-    
 
-    
-    
-    
-
-
-        
-    
-
-    
-    
-
-    
-    
-        
-    
-
-    
-    
-    
-
-        
-    
-
-        
-    
-
-    
-    
-    
-    
-  
-        
-    
-
-    
-    
-    
-    
-    
-  
-        
-    
-
-    
-    
-    
-    
-   
-        
-  
-
-        
-    
-
-    
-    
- 
-    
-
-    
-    
-    
-    
  
           </ul>
 
@@ -169,7 +105,7 @@
     <div class="layout-page">
       <!-- BEGIN: Navbar-->
             <!-- Navbar -->
-<nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme" id="layout-navbar">
+<nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme" id="layout-navbar" v-if="Vue_isLoggin">
     
       <!--  Brand demo (display only for navbar-full and hide on below xl) -->
       
@@ -247,7 +183,7 @@
                 <div class="dropdown-divider"></div>
               </li>
               <li>
-                <a class="dropdown-item" href="javascript:void(0);">
+                <a class="dropdown-item" href="javascript:void(0);" @click="Logout()">
                   <i class='bx bx-power-off me-2'></i>
                   <span class="align-middle">Log Out</span>
                 </a>
@@ -281,7 +217,7 @@
 
           <!-- Footer -->
                     <!-- Footer-->
-<footer class="content-footer footer bg-footer-theme">
+<footer class="content-footer footer bg-footer-theme" v-if="Vue_isLoggin">
   <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
     <div class="mb-2 mb-md-0">
       © 
@@ -322,7 +258,7 @@ export default {
 
     data() {
         return {
-            
+            Vue_isLoggin:false
         };
     },
 
@@ -331,8 +267,39 @@ export default {
     },
 
     methods: {
-        
+      Logout(){
+
+        this.$axios.post("/api/logout").then((response)=>{
+
+                      if(response.data.success){
+
+                        this.$storage.setStorageSync("isLoggin", false);
+
+                        // this.$router.push('/login');
+                         window.location.href = window.location.href.replace(/#.*$/,'');
+
+                      } 
+
+                    }).catch((error)=>{
+                      console.log(error);
+                    });
+      }
     },
+    created(){
+      
+      if(window.Laravel.isLoggin){
+
+        this.Vue_isLoggin = true
+
+      } else {
+
+        this.Vue_isLoggin = false
+
+      }
+
+      console.log(window.Laravel);
+      console.log('Vue3 Storage: '+this.$storage.getStorageSync("isLoggin"));
+    }
 };
 </script>
 
