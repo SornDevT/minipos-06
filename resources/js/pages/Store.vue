@@ -25,7 +25,8 @@
     
     <div class="row" v-if="FormShow">
         <div class="col-md-3">
-                aaaaaaaa
+              <img :src="imagePreview" class="img-thumbnail mb-2" alt="" srcset="">
+               <input type="file" class="form-control" @change="onSelected">
         </div>
         <div class="col-md-9">
             <div class="mb-3">
@@ -53,8 +54,15 @@
             </div>
         </div>
     </div>
+      <div v-if="!FormShow">
 
-    <div class="table-responsive text-nowrap" v-if="!FormShow">
+        <div class="row mb-2 d-flex justify-content-end ">
+            <div class="col-md-3"> 
+              <input type="text" class="form-control" placeholder="ຄົ້ນຫາຂໍ້ມູນ..." v-model="Search" @keyup.enter="GetDataStore()" >
+            </div>
+      </div>
+    <div class="table-responsive text-nowrap" >
+      
       <table class="table table-bordered">
         <thead>
           <tr>
@@ -68,11 +76,12 @@
         <tbody>
           
        
-          <tr v-for="list in StoreData" :key="list.id" >
+          <tr v-for="list in StoreData.data" :key="list.id" >
             <td> {{ list.id }} </td>
             <td>{{ list.name }}</td>
             <td>
-              {{ list.image }}
+              <img :src="'assets/img/'+list.image" class="img-cover" v-if="list.image" >
+              <img src="assets/img/no-image.png" class="img-cover" v-else >
             </td>
             <td>{{ formatPrice(list.price_buy) }}</td>
             <td>
@@ -87,7 +96,11 @@
           </tr>
         </tbody>
       </table>
+
+      <panition :pagination="StoreData" :offset="4" @paginate="GetDataStore($event)" />
+
     </div>
+  </div>
   </div>
 </div>
     </div>
@@ -99,6 +112,9 @@ export default {
 
     data() {
         return {
+          imagePreview: window.location.origin+'/assets/img/upload-img.png',
+          image_product:'',
+          Search:'',
             options:{
              // prefix: '₭ ',
               numeral: true,
@@ -129,6 +145,17 @@ export default {
     },
 
     methods: {
+      onSelected(event){
+        // console.log(event);
+        this.image_product = event.target.files[0];
+
+        let reader = new FileReader();
+        reader.readAsDataURL(this.image_product);
+        reader.addEventListener("load", function(){
+          this.imagePreview = reader.result;
+        }.bind(this), false);
+
+      },
       formatPrice(value) {
 			let val = (value / 1).toFixed(0).replace(",", ".");
 			return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")+" ກີບ";
@@ -154,16 +181,15 @@ export default {
                 formDataStore.append("amount", this.FormStore.amount);
                 formDataStore.append("price_buy", this.FormStore.price_buy);
                 formDataStore.append("price_sell", this.FormStore.price_sell);
+                formDataStore.append("file", this.image_product);
                 
                 this.$axios.get("/sanctum/csrf-cookie").then((response)=>{
-                this.$axios.post(`/api/store/update/${this.IDupdate}`, formDataStore).then((response)=>{
+                this.$axios.post(`/api/store/update/${this.IDupdate}`, formDataStore,{headers:{"content-typr":"multipart/form-data"}}).then((response)=>{
 
                 ///console.log(response.data);
 
                   this.GetDataStore();
-
                   if(response.data.success){
-
                     this.$swal(
                         'ການອັບເດດຂໍ້ມູນ',
                         response.data.message,
@@ -204,9 +230,10 @@ export default {
                 formDataStore.append("amount", this.FormStore.amount);
                 formDataStore.append("price_buy", this.FormStore.price_buy);
                 formDataStore.append("price_sell", this.FormStore.price_sell);
+                formDataStore.append("file", this.image_product);
 
                 this.$axios.get("/sanctum/csrf-cookie").then((response)=>{
-                this.$axios.post("/api/store/add", formDataStore).then((response)=>{
+                this.$axios.post("/api/store/add", formDataStore,{headers:{"content-typr":"multipart/form-data"}}).then((response)=>{
 
                  // console.log(response.data);
 
@@ -245,7 +272,7 @@ export default {
             this.FormStore.amount = '';
             this.FormStore.price_buy = '';
             this.FormStore.price_sell = '';
-
+            this.imagePreview = window.location.origin+'/assets/img/upload-img.png';
             // ປິດຟອມ ແລະ ສະແດງຕາຕະລາງ
             this.FormShow = false;
 
@@ -279,6 +306,15 @@ export default {
               this.FormStore.amount = response.data.amount;
               this.FormStore.price_buy = response.data.price_buy;
               this.FormStore.price_sell = response.data.price_sell;
+              
+              this.image_product = response.data.image;
+
+              if(response.data.image){
+                this.imagePreview = window.location.origin+'/assets/img/'+ response.data.image;
+              } else {
+                this.imagePreview = window.location.origin+'/assets/img/no-image.png';
+              }
+              
 
             }).catch((error)=>{
               console.log(error);
@@ -343,10 +379,10 @@ export default {
 
 
         },
-        GetDataStore(){
+        GetDataStore(page){
 
           this.$axios.get("/sanctum/csrf-cookie").then((response)=>{
-            this.$axios.get("api/store").then((response)=>{
+            this.$axios.get(`api/store?page=${page}&search=${this.Search}`).then((response)=>{
               //  console.log(response.data);
                 this.StoreData = response.data;
             }).catch((error)=>{
@@ -366,6 +402,23 @@ export default {
         }
 
     },
+    watch:{
+        "Search"(){
+          if(this.Search == ''){
+            this.GetDataStore();
+          }
+        },
+        "FormShow"(){
+              if(this.FormShow){
+                // ເຄຼຍຂໍ້ມູນໃນຟອມ
+            this.FormStore.name = '';
+            this.FormStore.amount = '';
+            this.FormStore.price_buy = '';
+            this.FormStore.price_sell = '';
+            this.imagePreview = window.location.origin+'/assets/img/upload-img.png';
+              }
+        }
+    },
     created(){
       this.GetDataStore();
     }
@@ -374,5 +427,10 @@ export default {
 </script>
 
 <style >
-
+  .img-cover{
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    object-position: center;
+  }
 </style>

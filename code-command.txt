@@ -6,3 +6,4 @@
 - npm run watch                         : ເປັນຄຳສັ່ງ Run Compli vue
 - php artisam make:model -m ຊື່ໂມເດວ      : ເປັນຄຳສັ່ງສ້າງ Model 
 - php artisam make:controoler ຊື່ Controller  : ເປັນຄຳສັ່ງ ສ້າງ Controller
+- composer require intervention/image   : ຕິດຕັ້ງ library ອັບໂຫຼດຮູບພາບ
