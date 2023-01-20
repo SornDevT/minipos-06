@@ -24,7 +24,14 @@
   <div class="card-body">
     
     <div class="row" v-if="FormShow">
-        <div class="col-md-3">
+        <div class="col-md-3" style=" position:relative">
+          <div class="bt-del" v-if="image_product" >
+            <button type="button" class="btn rounded-pill btn-icon btn-danger" @click="Delete_ing()">
+                <i class='bx bxs-trash-alt'></i>
+              </button>
+          </div>
+              
+
               <img :src="imagePreview" class="img-thumbnail mb-2" alt="" srcset="">
                <input type="file" class="form-control" @change="onSelected">
         </div>
@@ -145,6 +152,10 @@ export default {
     },
 
     methods: {
+      Delete_ing(){
+        this.imagePreview = window.location.origin+'/assets/img/upload-img.png';
+        this.image_product = '';
+      },
       onSelected(event){
         // console.log(event);
         this.image_product = event.target.files[0];
@@ -427,10 +438,11 @@ export default {
 </script>
 
 <style >
-  .img-cover{
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    object-position: center;
-  }
+.bt-del{
+  position: absolute;
+    top: 10px;
+    right: 20px;
+    z-index: 100;
+}
+ 
 </style>

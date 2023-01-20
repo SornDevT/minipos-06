@@ -69,7 +69,7 @@ class StoreController extends Controller
         ->where('name','LIKE',"%{$search}%")
         // ->orWhere('price_buy','LIKE',"%{$search}%")
         // ->orWhere('id','LIKE',"%{$search}%")
-        ->paginate(5)
+        ->paginate(15)
         ->toArray();
 
         return array_reverse($store);
@@ -87,10 +87,11 @@ class StoreController extends Controller
         try {
 
         $store = Store::find($id);
+        $upload_path = "assets/img";
 
         if($request->file('file')){
 
-            $upload_path = "assets/img";
+            
 
             // ກວດຊອບ ລຶບຮູບເກົ່າ
             if($store->image!=''){
@@ -98,6 +99,8 @@ class StoreController extends Controller
                     unlink($upload_path.'/'.$store->image);
                 }
             }
+
+            //return $request->file('file');
 
 
             $generate_new_name = time().'.'.$request->file->getClientOriginalExtension();
@@ -118,14 +121,38 @@ class StoreController extends Controller
             ]);
 
         } else {
-            $generate_new_name = '';
+           
 
-            $store->update([
-                'name'=>$request->name,
-                'amount'=>$request->amount,
-                'price_buy'=>$request->price_buy,
-                'price_sell'=>$request->price_sell,
-            ]);
+            // return $request->file;
+
+            if($request->file){
+                $store->update([
+                    'name'=>$request->name,
+                    'amount'=>$request->amount,
+                    'price_buy'=>$request->price_buy,
+                    'price_sell'=>$request->price_sell,
+                ]);
+            } else {
+
+                $generate_new_name = '';
+                 // ກວດຊອບ ລຶບຮູບເກົ່າ
+                if($store->image!=''){
+                    if(file_exists($upload_path.'/'.$store->image)){
+                        unlink($upload_path.'/'.$store->image);
+                    }
+                }
+
+                $store->update([
+                    'name'=>$request->name,
+                    'image'=>$generate_new_name,
+                    'amount'=>$request->amount,
+                    'price_buy'=>$request->price_buy,
+                    'price_sell'=>$request->price_sell,
+                ]);
+
+            }
+
+           
         }
 
        

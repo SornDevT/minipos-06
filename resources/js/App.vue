@@ -303,6 +303,11 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-
+<style>
+ .img-cover{
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    object-position: center;
+  }
 </style>
