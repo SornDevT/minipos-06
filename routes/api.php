@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TransectionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,14 @@ Route::group(['prefix'=>'store', 'middleware'=>'auth:sanctum'], function(){
     Route::get("edit/{id}",[StoreController::class,"edit"]);
     Route::post("update/{id}",[StoreController::class,"update"]);
     Route::delete("delete/{id}",[StoreController::class,"delete"]);
+});
+
+Route::group(['prefix'=>'transection', 'middleware'=>'auth:sanctum'], function(){
+    Route::post("add",[TransectionController::class,"add"]);
+    // Route::get("/",[TransectionController::class,"index"]);
+    // Route::get("edit/{id}",[TransectionController::class,"edit"]);
+    // Route::post("update/{id}",[TransectionController::class,"update"]);
+    // Route::delete("delete/{id}",[TransectionController::class,"delete"]);
 });
 
 // Route::post("store/add",[StoreController::class,"add"]);

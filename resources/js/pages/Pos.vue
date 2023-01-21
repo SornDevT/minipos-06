@@ -38,7 +38,7 @@
                                 <span>ລວມຍອດເງິນ:</span>
                                 <span>{{ formatPrice(TotalAmount) }}</span>
                             </div>
-                            <button type="button" class="btn rounded-pill btn-success mb-2" style="width:100%">ຊຳລະເງິນ</button>
+                            <button type="button" class="btn rounded-pill btn-success mb-2" style="width:100%" :disabled="checklist" @click="Confirm_pay()" >ຊຳລະເງິນ</button>
 
                             <table class="table table-bordered">
                                 <thead>
@@ -64,6 +64,89 @@
             </div>
 
         </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="backDropModalTitle">ຊຳລະສິນຄ້າ</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class=" d-flex justify-content-between ">
+                    <span>
+                        <p> <strong> ຍອດເງິນ: </strong></p>
+                        <p> <strong>ຮັບເງິນນຳລູກຄ່າ:</strong></p>
+                    </span>
+                    <span>
+                        <p class="text-end"><strong>{{ formatPrice(TotalAmount) }}</strong></p>
+                        <p class="text-end"><strong>{{ formatPrice(CashAmount) }}</strong></p>
+                    </span>
+                  </div>
+                  <div class=" d-flex justify-content-between text-danger " v-if="CashAmount-TotalAmount>0">
+                    <p> <strong> ເງິນທອນ: </strong></p>
+                    <p class="text-end"> <strong> {{ formatPrice(CashAmount-TotalAmount)}}</strong></p>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                        <cleave :options="options"  name="" class=" form-control" id="" style="text-align:right" v-model="CashAmount" />
+                    </div>
+                    <div class="col-md-12">
+                        <div class="p-2 justify-content-center d-flex mb-4">
+                            <div class="row" style="width: 250px;">
+                                <div class="col-4 text-center mt-2">
+                                    <a class="btn btn-primary btn-lg text-white" @click="AddNum(1)" style="width: 60px;">1</a>
+                                </div>
+                                <div class="col-4 text-center mt-2">
+                                    <a class="btn btn-primary btn-lg text-white" @click="AddNum(2)" style="width: 60px;">2</a>
+                                </div>
+                                <div class="col-4 text-center mt-2">
+                                    <a class="btn btn-primary btn-lg text-white" @click="AddNum(3)" style="width: 60px;">3</a>
+                                </div>
+                                <div class="col-4 text-center mt-2">
+                                    <a class="btn btn-primary btn-lg text-white" @click="AddNum(4)" style="width: 60px;">4</a>
+                                </div>
+                                <div class="col-4 text-center mt-2">
+                                    <a class="btn btn-primary btn-lg text-white" @click="AddNum(5)" style="width: 60px;">5</a>
+                                </div>
+                                <div class="col-4 text-center mt-2">
+                                    <button type="button" class="btn btn-primary btn-lg text-white" @click="AddNum(6)" style="width: 60px;">6</button>
+                                </div>
+                                <div class="col-4 text-center mt-2">
+                                    <a class="btn btn-primary btn-lg text-white" @click="AddNum(7)" style="width: 60px;">7</a>
+                                </div>
+                                <div class="col-4 text-center mt-2">
+                                    <a class="btn btn-primary btn-lg text-white" @click="AddNum(8)" style="width: 60px;">8</a>
+                                </div>
+                                <div class="col-4 text-center mt-2">
+                                    <a class="btn btn-primary btn-lg text-white" @click="AddNum(9)" style="width: 60px;">9</a>
+                                </div>
+                                <div class="col-4 text-center mt-2">
+                                    <a class="btn btn-primary btn-lg text-white" @click="AddNum('00')" style="width: 60px;">00</a>
+                                </div><div class="col-4 text-center mt-2">
+                                    <a class="btn btn-primary btn-lg text-white" @click="AddNum(0)" style="width: 60px;">0</a>
+                                </div>
+                                <div class="col-4 text-center mt-2">
+                                    <a class="btn btn-danger btn-lg text-white" @click="AddNum('-')" style="width: 60px;"><i class='bx bx-arrow-back'></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class=" justify-content-center d-flex">
+                            <button type="button" class="btn rounded-pill btn-info" :disabled="CheckAmout" @click="Pay()" >ຊຳລະເງິນ</button>
+                        </div>
+                    </div>
+                  </div>
+            
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">ປິດ</button>
+      
+                </div>
+            </div>
+            </div>
+          </div>
+
     </div>
 </template>
 
@@ -76,6 +159,18 @@ export default {
             Search:'',
             StoreData:[],
             ListOrder:[],
+            CashAmount:'',
+            options:{
+             // prefix: '₭ ',
+              numeral: true,
+              numeralPositiveOnly: true,
+              noImmediatePrefix: true,
+              rawValueTrimPrefix: true,
+              numeralIntegerScale: 10,
+              numeralDecimalScale: 2,
+              numeralDecimalMark: ',',
+              delimiter: '.'
+            },
         };
     },
 
@@ -85,25 +180,119 @@ export default {
     computed:{
         TotalAmount(){
             return this.ListOrder.reduce((num,item) => num + item.price_sell*item.order_amount,0);
+        },
+        checklist(){
+            if(this.TotalAmount>0){
+                return false;
+            } else {
+                return true;
+            }
+        },
+        CheckAmout(){
+                if(this.CashAmount>=this.TotalAmount){
+                    return false;
+                } else {
+                    return true;
+                }
         }
     },
     methods: {
+        Pay(){
+
+            this.$axios.get("/sanctum/csrf-cookie").then((response)=>{
+                this.$axios.post("/api/transection/add", {
+                    acc_type:'income',
+                    listorder: this.ListOrder
+                }).then((response)=>{
+
+
+                  if(response.data.success){
+
+                    $('#backDropModal').modal('hide');
+                    this.ListOrder = [];
+                    this.CashAmount = '';
+                    this.GetDataStore();
+
+                    this.$swal(
+                        'ການຊຳລະເງິນ',
+                        response.data.message,
+                        'success'
+                      );
+
+                  } else {
+
+                    this.$swal(
+                        'ການຊຳລະເງິນ',
+                        response.data.message,
+                        'error'
+                      );
+
+                  }
+
+                  this.GetDataStore();
+                  
+                }).catch((error)=>{
+                  console.log(error)
+                });
+              });
+        },
+        Confirm_pay(){
+                
+            $('#backDropModal').modal('show');
+        },
+        AddNum(num){
+            if(num == '-'){
+                this.CashAmount = this.CashAmount.slice(0,-1);
+            } else {
+                //console.log(this.CashAmount + num);
+                this.CashAmount =  this.CashAmount + num;
+            }
+        },
         add_product(id){
                 let item = this.StoreData.data.find((i)=>i.id == id);
 
-                let list_order = this.ListOrder.find((i)=>i.id == id);
+               console.log(item);
 
-                if(list_order){
+                    if(item.amount>0){
 
-                            list_order.order_amount++;
-                } else {
-                    this.ListOrder.push({
-                        id: item.id,
-                        name: item.name,
-                        price_sell: item.price_sell,
-                        order_amount: 1
-                    });
+                        let list_order = this.ListOrder.find((i)=>i.id == id);
+
+                        if(list_order){ // ຖ້າມີໃນລາຍການສັ່ງຊື້
+
+                            let old_order = list_order.order_amount;
+
+                                // console.log(old_order.amount)
+
+                                if(item.amount-old_order>0){
+                                    list_order.order_amount++;
+                                } else {
+                                    this.$swal(
+                                            'ສິນຄ້ານີ້',
+                                            'ໝົດແລ້ວ!',
+                                            'error'
+                                        );
+                                }
+
+                                    
+                        } else { // ຖ້າບໍ່ມີໃນລາຍການ ເພີ່ມໃໝ່
+                            this.ListOrder.push({
+                                id: item.id,
+                                name: item.name,
+                                price_sell: item.price_sell,
+                                order_amount: 1
+                            });
+                        }
+
+
+                } else{
+                    this.$swal(
+                        'ສິນຄ້ານີ້',
+                        'ໝົດແລ້ວ!',
+                        'error'
+                      );
                 }
+
+                
 
                 
         },
