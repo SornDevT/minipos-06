@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\Store;
+use App\Models\Transection;
 use Intervention\Image\Facades\Image;
 
 class StoreController extends Controller
@@ -38,6 +39,43 @@ class StoreController extends Controller
             $store->price_buy = $request->price_buy;
             $store->price_sell = $request->price_sell;
             $store->save();
+            // ດຶງ id ທີ່ບັນທຶກລ່າສຸດອອກມາ
+            $product_id = $store->id;
+
+
+            /// ບັນທຶກ ລາຍຈ່າຍ ຊື້ສິນຄ້າ
+
+                $number = 1;
+                $tran = Transection::all()->sortByDesc('id')->take(1)->toArray();
+
+                foreach($tran as $new){
+                    $number = $new["tran_id"];
+                }
+                // ຕົວຢ່າງ INC00001
+                if($number !=''){
+                    $number1 = str_replace("INC","",$number); // 00001
+                    $number2 = str_replace("EXP","",$number1);
+                    $number3 = (int)$number2+1; // 1+1 = 2
+                    $length = 5;
+                    $number = substr(str_repeat(0,$length).$number3, - $length); //00010
+                }
+
+                if($request->acc_type == "income") {
+                    $tnum = "INC"; //INC00010
+                } elseif($request->acc_type == "expense") {
+                    $tnum = "EXP"; // EXP00010
+                }
+
+                $tran = new Transection();
+                $tran->tran_id = $tnum.$number;
+                $tran->product_id = $product_id;
+                $tran->tran_type = $request->acc_type;
+                $tran->amount = $request->amount;
+                $tran->tran_detail = " ນຳເຂົ້າສິນຄ້າໃໝ່ ".$request->name;
+                $tran->price = $request->amount*$request->price_buy;
+                $tran->save();
+
+
 
             $success = true;
             $message = "ບັນທຶກຂໍ້ມູນສຳເລັດ!";
@@ -65,7 +103,7 @@ class StoreController extends Controller
 
         $search = \Request::get('search');
 
-        $store = Store::orderBy('id','asc')
+        $store = Store::orderBy('id','desc')
         ->where('name','LIKE',"%{$search}%")
         // ->orWhere('price_buy','LIKE',"%{$search}%")
         // ->orWhere('id','LIKE',"%{$search}%")

@@ -9,6 +9,49 @@ use App\Models\Store;
 class TransectionController extends Controller
 {
     //
+
+    public function index(Request $request){
+
+        $month_type = $request->month_type;
+        $dmy = $request->dmy;
+
+        if($dmy == ''){
+
+            $tran = Transection::orderBy("created_at","desc")
+            ->paginate(10)
+            ->toArray();
+            return array_reverse($tran);
+
+        } else {
+
+            $m = explode("-",$dmy)[1];
+            $y = explode("-",$dmy)[0];
+
+            if($month_type == "m"){
+
+                //  return $m;
+
+                $tran = Transection::orderBy("created_at","desc")
+                ->whereYear("created_at","=",$y)
+                ->whereMonth("created_at","=",$m)
+                ->paginate(10)
+                ->toArray();
+                return array_reverse($tran);
+
+            } else if($month_type == "y"){
+
+                $tran = Transection::orderBy("created_at","desc")
+                ->whereYear("created_at","=",$y)
+                ->paginate(10)
+                ->toArray();
+                return array_reverse($tran);
+
+            }
+
+        }
+
+    }
+
     public function add(Request $request){
         try {
 
