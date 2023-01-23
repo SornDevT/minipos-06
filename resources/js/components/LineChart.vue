@@ -1,11 +1,10 @@
 <script>
-import { defineComponent, watch } from 'vue'
+import { defineComponent } from 'vue'
 import { Line } from 'vue3-chart-v2'
 
 export default defineComponent({
-  name: 'MonthlyChart',
+  name: 'LineChart',
   extends: Line,
-
   props:{
     chartData:{
         type:Object,
@@ -27,10 +26,10 @@ export default defineComponent({
   watch:{
     update:{
         handle: function(){
-            this._chart.destory();
+            this._chart.destroy();
             this.renderChart(this.chartData, this.chartOption);
         }
     }
   }
-})
+});
 </script>

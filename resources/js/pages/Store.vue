@@ -399,6 +399,8 @@ export default {
                 this.StoreData = response.data;
             }).catch((error)=>{
               console.log(error);
+              console.log(error.response.status);
+              if(error.response.status==401){ this.$storage.setStorageSync("isLoggin", false); location.reload(); }
             });
           });
 
