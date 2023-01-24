@@ -7,6 +7,7 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TransectionController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\BillController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,11 +24,21 @@ use App\Http\Controllers\ReportController;
 //     return $request->user();
 // });
 
+Route::get('/clear-route-cache', function () {
+    Artisan::call('route:cache');
+    return 'Routes cache has clear successfully !';
+});
+
 Route::post("register",[UserController::class,"register"]);
 Route::post("login",[UserController::class,"login"]);
 Route::post("logout",[UserController::class,"logout"]);
 
+
+Route::get("bill/{id}",[BillController::class,"print_bill"]);
+
+
 Route::group(['prefix'=>'store', 'middleware'=>'auth:sanctum'], function(){
+
     Route::post("add",[StoreController::class,"add"]);
     Route::get("/",[StoreController::class,"index"]);
     Route::get("edit/{id}",[StoreController::class,"edit"]);

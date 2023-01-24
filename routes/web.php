@@ -17,6 +17,12 @@ use Illuminate\Support\Facades\Route;
 //     return view('welcome');
 // });
 
+// clear route cache
+Route::get('/clear-route-cache', function () {
+    Artisan::call('route:cache');
+    return 'Routes cache has clear successfully !';
+});
+
 Route::get('{any}', function () {
     return view('app');
 })->where('any','.*');

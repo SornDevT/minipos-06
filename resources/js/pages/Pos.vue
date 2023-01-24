@@ -34,6 +34,15 @@
 
                 <div class=" card ">
                     <div class=" card-body ">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="">ຊື່ລູກຄ້າ</label>
+                                <input type="text" class=" form-control " v-model="customer_name">
+                                <label for="">ເບີໂທ</label>
+                                <input type="text" class=" form-control " v-model="customer_tel">
+                            </div>
+                        </div>
+                        <hr>
                             <div class=" d-flex justify-content-between mb-2 ">
                                 <span>ລວມຍອດເງິນ:</span>
                                 <span>{{ formatPrice(TotalAmount) }}</span>
@@ -156,6 +165,8 @@ export default {
 
     data() {
         return {
+            customer_name:'',
+            customer_tel:'',
             Search:'',
             StoreData:[],
             ListOrder:[],
@@ -202,11 +213,15 @@ export default {
             this.$axios.get("/sanctum/csrf-cookie").then((response)=>{
                 this.$axios.post("/api/transection/add", {
                     acc_type:'income',
-                    listorder: this.ListOrder
+                    listorder: this.ListOrder,
+                    customer_name: this.customer_name,
+                    customer_tel: this.customer_tel
                 }).then((response)=>{
 
 
                   if(response.data.success){
+
+                    window.open(window.location.origin+'/api/bill/'+response.data.bill_id, "_blank");
 
                     $('#backDropModal').modal('hide');
                     this.ListOrder = [];

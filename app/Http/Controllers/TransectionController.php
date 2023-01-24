@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Transection;
 use App\Models\Store;
+use App\Models\Bill;
+use App\Models\Bill_list;
 
 class TransectionController extends Controller
 {
@@ -55,6 +57,26 @@ class TransectionController extends Controller
     public function add(Request $request){
         try {
 
+
+            // ຂໍ້ມູນໃບບິນ
+            
+            $bill_id = 1;
+            $bid = Bill::all()->sortByDesc('id')->take(1)->toArray();
+            foreach($bid as $new){
+                $bill_id = $new["bill_id"];
+            }
+
+            $new_bid = (int)$bill_id+1; // 1+1 = 2
+            $length = 5;
+            $new_bill_id = substr(str_repeat(0,$length).$new_bid, - $length);
+
+            $bill = new Bill();
+            $bill->bill_id = $new_bill_id;
+            $bill->customer_name = $request->customer_name;
+            $bill->customer_tel = $request->customer_tel;
+            $bill->save();
+
+
             
             foreach($request->listorder as $item){
 
@@ -96,6 +118,16 @@ class TransectionController extends Controller
                 $store_update->update([
                     'amount' => $store->amount - $item['order_amount']
                 ]);
+
+                // ບັນທຶກລາຍການ ໃບບິນ
+
+                $bill_list = new Bill_list();
+                $bill_list->bill_id = $new_bill_id;
+                $bill_list->name = $item["name"];
+                $bill_list->amount = $item["order_amount"];
+                $bill_list->price = $item["price_sell"];
+                $bill_list->save();
+
             }
 
 
@@ -109,7 +141,8 @@ class TransectionController extends Controller
 
        $response = [
             "success"=> $success,
-            "message"=>$message
+            "message"=>$message,
+            "bill_id"=>$new_bill_id
        ];
 
        return response()->json($response);
